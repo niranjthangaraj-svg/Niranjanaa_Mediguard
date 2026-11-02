@@ -1,0 +1,83 @@
+
+#include <Wire.h>
+#include <RTClib.h>
+#include <LiquidCrystal_I2C.h>
+#include <ESP32Servo.h>
+ 
+RTC_DS3231 rtc;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+ 
+Servo servo1;
+Servo servo2;
+Servo servo3;
+ 
+int s1 = 4;
+int s2 = 5;
+int s3 = 18;
+int buzzer = 19;
+ 
+void setup() {
+  Wire.begin(21, 22);
+ 
+  lcd.init();
+  lcd.backlight();
+ 
+  rtc.begin();
+ 
+  servo1.attach(s1);
+  servo2.attach(s2);
+  servo3.attach(s3);
+ 
+  pinMode(buzzer, OUTPUT);
+ 
+  servo1.write(0);
+  servo2.write(0);
+  servo3.write(0);
+}
+ 
+void loop() {
+  DateTime now = rtc.now();
+ 
+  lcd.setCursor(0, 0);
+  lcd.print("Time: ");
+ 
+  lcd.setCursor(0, 1);
+  lcd.print(now.hour());
+  lcd.print(":");
+  if (now.minute() < 10) {
+    lcd.print("0");
+  }
+  lcd.print(now.minute());
+  lcd.print("   ");
+ 
+  // SERVO 1 -> 10:00
+  if (now.hour() == 10 && now.minute() == 0) {
+    digitalWrite(buzzer, HIGH);
+    servo1.write(90);
+    delay(5000);
+    servo1.write(0);
+    digitalWrite(buzzer, LOW);
+  }
+ 
+  // SERVO 2 -> 10:01
+  if (now.hour() == 10 && now.minute() == 1) {
+    digitalWrite(buzzer, HIGH);
+    servo2.write(90);
+    delay(5000);
+    servo2.write(0);
+    digitalWrite(buzzer, LOW);
+  }
+ 
+  // SERVO 3 -> 10:02
+  if (now.hour() == 10 && now.minute() == 2) {
+    digitalWrite(buzzer, HIGH);
+    servo3.write(90);
+    delay(5000);
+    servo3.write(0);
+    digitalWrite(buzzer, LOW);
+  }
+ 
+  delay(1000);
+}
+
+Note: This version corrects formatting and declaration errors from the supplied code. The servo checks will remain true for the entire matching minute, so the action may repeat during that minute. For reliable one-time dispensing, add a per-minute trigger/lockout.
